@@ -33,7 +33,7 @@ namespace KeywordCompare
         private string FileName2 = "keyword2.txt";
 
         private List<string> keywordList1 = new List<string>();
-        private List<string> keywordList2 = new List<string>();
+        private List<KeyValuePair<string, string>> keywordList2 = new List<KeyValuePair<string, string>>();
 
         private bool CompareFileValidate()
         {
@@ -66,7 +66,11 @@ namespace KeywordCompare
                 string keyword = "";
                 while ((keyword = sr.ReadLine()) != null)
                 {
-                    keywordList2.Add(keyword);
+                    string [] keywordArray = keyword.Split(' ', '\t');
+                    if (keywordArray.Length > 1)
+                    {
+                        keywordList2.Add(new KeyValuePair<string, string>(keywordArray[0], keywordArray[1]));
+                    }
                 }
             }
             else
@@ -114,16 +118,16 @@ namespace KeywordCompare
 
                 foreach (var item in keywordList1)
                 {
-                    var keywordCount = keywordList2.Where(keyword => keyword == item);
+                    KeyValuePair<string, string> IsExist = keywordList2.FirstOrDefault(keyword => keyword.Key == item);
                     Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
                     {
                         CompareProgressBar.Value++;
                         CompareProgressTextBlock.Text = string.Format("({0}/{1})", CompareProgressBar.Value, keywordList1.Count);
                         CompareProgressTimeTextBlock.Text = sw.Elapsed.ToString();
                     }));
-
-                    streamWriter.WriteLine(item + "|" + keywordCount.Count());                    
-                    // Debug.WriteLine(item + ", " + keywordCount.Count());
+                    
+                    streamWriter.WriteLine(item + "|" + IsExist.Value);
+                    // Debug.WriteLine(item + "|" + IsExist.Value);
                 }
 
                 streamWriter.Close();
